@@ -25,6 +25,6 @@ def readNames(fileName):
 
 worksheet = "acme_worksheet.csv"
 names = readNames(worksheet)
-file = open("resultWithout","w")
+file = open("resultWithout.csv","w")
 for i in names:
     file.write(f"{i}\n")
