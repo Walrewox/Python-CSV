@@ -21,21 +21,25 @@ def readAndWrite(fileName):
             day = re.findall(r"\d{2}",date)
             result.write(f"{year[0]}-{months[month[0]]}-{day[0]},")
     headObj.close()
-
+    """ End of formating headers """
     nameObj = open(fileName,'r')
-    hourObj = open(fileName,'r')
     readNames = csv.reader(nameObj)
-    readHours = csv.reader(hourObj)
-    name = 0
+    next(readNames)
     names = []
     for row in readNames:
-        if(row[0] != name)and(row[0] not in names):
-            name = row[0]
-            names.append(name)
-            result.write(f"{name},\n")
-
+        if (row[0] not in names):
+            names.append(row[0])
     nameObj.close()
-    hourObj.close()
+    names.sort()
+    """ End of reading names """
+    for i in names:
+        hourObj = open(fileName,'r')
+        readHours = csv.reader(hourObj)
+        result.write(f"\n{i},")
+        for row in readHours:
+            if(i == row[0]):
+                result.write(f"{row[2]},")
+        hourObj.close()
 
 if __name__ == "__main__":
     csvName = "acme_worksheet.csv"
