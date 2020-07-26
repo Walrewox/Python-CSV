@@ -38,15 +38,20 @@ def write_row(name, dates, IFL, OFO):
     IFL - input file list
     OFO - output file object
     """
+    OFO.write(f"\n{name},")
     used = []
     for date in dates:
         for row in IFL:
             if(row[1] not in used):
-                if(row[1] == date)and(row[0] == name):
-                    used.append(row[1])
-                    hour = f"{row[2]}" if date == dates[-1] else f"{row[2]},"
-                    OFO.write(hour)
-                    break
+                if(row[1] == date):
+                    if(row[0] == name):
+                        used.append(row[1])
+                        hour = f"{row[2]}" if date == dates[-1] else f"{row[2]},"
+                        OFO.write(hour)
+                        break
+                    elif(row == IFL[-1]):
+                        OFO.write("0")
+                        break
                 elif(row[1] != date):
                     used.append(row[1])
                     zero = "0" if date == dates[-1] else "0,"
@@ -59,11 +64,11 @@ def read_and_write(inputCSV):
     names.sort()
     dates = read_rows(inputCSV, 1)
     outputCSV = write_header("resultWith",dates)
-    """ End of reading dates and names. Created file and header-row. """
+
     for name in names:
-        outputCSV.write(f"\n{name},")
         inputFileObject = open(inputCSV)
         IFL = list(reader(inputFileObject))
+        IFL.pop(0) 
         write_row(name, dates, IFL, outputCSV)
         inputFileObject.close()
     outputCSV.close()
