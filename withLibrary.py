@@ -1,62 +1,73 @@
-import csv
+from csv import reader
 from re import findall
 
-months = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06','Jul':'07','Aug':'08',
-'Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
-def readRows(fileName,rowsIndex):
+months = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
+          'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
+
+def read_rows(rawFileName,rowsIndex):
+    """ Read from file list of values for a given index using csv library """
     array = []
-    fileObj = open(fileName,"r")
-    reader = csv.reader(fileObj)
-    next(reader) #skip header-row
-    for row in reader:
+    fileObj = open(rawFileName,"r")
+    readerObj = reader(fileObj)
+    for row in readerObj:
         if(row[rowsIndex] not in array):
             array.append(row[rowsIndex])
     fileObj.close()
+    array.pop(0) # Delete column-head element
     return array
-def writeHeader(nameOfFile,dates):
-    file = open(nameOfFile+".csv","w")
-    file.write("Name/Date,")
+
+def write_header(nameOfFile,dates):
+    """ Create and return file object in which written column-heads """
+    fileObj = open(nameOfFile+".csv","w")
+    fileObj.write("Name/Date,")
     for date in dates:
         year = findall(r"\d{4}",date)
         month = findall(r"[A-Za-z]{3}",date)
         day = findall(r"\d{2}",date)
         if (date == dates[-1]):
-            file.write(f"{year[0]}-{months[month[0]]}-{day[0]}")
+            fileObj.write(f"{year[0]}-{months[month[0]]}-{day[0]}")
         else:
-            file.write(f"{year[0]}-{months[month[0]]}-{day[0]},")
-    return file
-def readAndWrite(fileName):
-    """ Open and read information from CSV file,
-    parse it and write header of columns to new file """
-    names = readRows(fileName,0)
+            fileObj.write(f"{year[0]}-{months[month[0]]}-{day[0]},")
+    return fileObj
+
+def write_row(name, dates, IFL, OFO):
+    """ Writing body of output file: Employee Names with Work Hours.
+
+    Keyword arguments:
+    dates - an array of dates to be followed by a check
+    IFL - input file list
+    OFO - output file object
+    """
+    used = []
+    for date in dates:
+        for row in IFL:
+            if(row[1] not in used):
+                if(row[1] == date)and(row[0] == name):
+                    used.append(row[1])
+                    hour = f"{row[2]}" if date == dates[-1] else f"{row[2]},"
+                    OFO.write(hour)
+                    break
+                elif(row[1] != date):
+                    used.append(row[1])
+                    zero = "0" if date == dates[-1] else "0,"
+                    OFO.write(zero)
+                    break
+
+def read_and_write(inputCSV):
+    """ Main function of module """
+    names = read_rows(inputCSV, 0)
     names.sort()
-    dates = readRows(fileName,1)
-    result = writeHeader("resultWith",dates)
+    dates = read_rows(inputCSV, 1)
+    outputCSV = write_header("resultWith",dates)
     """ End of reading dates and names. Created file and header-row. """
-    for i in names:
-        result.write(f"\n{i},")
-        marked = []
-        for j in dates:
-            hourObj = open(fileName,'r')
-            readHour = csv.reader(hourObj)
-            next(readHour)
-            for row in readHour:
-                if(row[1] not in marked):
-                    if(j == row[1]):
-                        if(i == row[0]):
-                            marked.append(row[1])
-                            hour = f"{row[2]}" if j == dates[-1] else f"{row[2]},"
-                            result.write(hour)
-                            break
-                    else:
-                        marked.append(row[1])
-                        zero = "0" if j == dates[-1] else "0,"
-                        result.write(zero)
-                        break
-            hourObj.close()
-    result.close()
-    """ End writing body of file and close it.  """
+    for name in names:
+        outputCSV.write(f"\n{name},")
+        inputFileObject = open(inputCSV)
+        IFL = list(reader(inputFileObject))
+        write_row(name, dates, IFL, outputCSV)
+        inputFileObject.close()
+    outputCSV.close()
 
 if __name__ == "__main__":
     csvName = "acme_worksheet.csv"
-    readAndWrite(csvName)
+    read_and_write(csvName)
