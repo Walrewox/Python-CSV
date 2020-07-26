@@ -4,16 +4,16 @@ from re import findall
 months = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
           'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
 
-def read_rows(rawFileName,rowsIndex):
-    """ Read from file list of values for a given index using csv library """
+def read_rows(IFL,columnIndex):
+    """ Read from file list of values for a given index using csv library
+
+    Second argument values: 0 - Employee Name, 1 - Date
+    """
     array = []
-    fileObj = open(rawFileName,"r")
-    readerObj = reader(fileObj)
-    for row in readerObj:
-        if(row[rowsIndex] not in array):
-            array.append(row[rowsIndex])
+    for row in IFL:
+        if(row[columnIndex] not in array):
+            array.append(row[columnIndex])
     fileObj.close()
-    array.pop(0) # Delete column-head element
     return array
 
 def write_header(nameOfFile,dates):
@@ -60,17 +60,18 @@ def write_row(name, dates, IFL, OFO):
 
 def read_and_write(inputCSV):
     """ Main function of module """
-    names = read_rows(inputCSV, 0)
+    inputFileObject = open(inputCSV)
+    IFL = list(reader(inputFileObject))
+    IFL.pop(0)
+
+    names = read_rows(IFL, 0)
     names.sort()
-    dates = read_rows(inputCSV, 1)
+    dates = read_rows(IFL, 1)
     outputCSV = write_header("resultWith",dates)
 
     for name in names:
-        inputFileObject = open(inputCSV)
-        IFL = list(reader(inputFileObject))
-        IFL.pop(0) 
         write_row(name, dates, IFL, outputCSV)
-        inputFileObject.close()
+    inputFileObject.close()
     outputCSV.close()
 
 if __name__ == "__main__":
