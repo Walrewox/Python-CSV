@@ -29,7 +29,7 @@ def create_list(fileString):
         list.append(row.split(","))
     return list
 
-def main(inputCSV):
+def main(inputCSV,outputName,outputType):
     """ Uses functions of with-library version for write output file """
     IFS = open(inputCSV,"r").read() # IFS - input file string
     names = read_array(IFS,0)
@@ -38,11 +38,13 @@ def main(inputCSV):
     names.pop(-1) # Delete "Work Hours" value
     dates = read_array(IFS,1)
     readList = create_list(IFS)
-    outputFile = write_header("resultWithout",dates)
+    outputFile = write_header(outputName,dates,outputType)
     for name in names:
         write_row(name,dates,readList,outputFile)
     outputFile.close()
 
 if __name__ == "__main__":
-    input = "acme_worksheet.csv"
-    main(input)
+    csvName = "acme_worksheet.csv"
+    outName = "withoutLib"
+    outType = 0
+    main(csvName,outName,outType)

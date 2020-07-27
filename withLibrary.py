@@ -13,12 +13,12 @@ def read_rows(IFL,columnIndex):
     for row in IFL:
         if(row[columnIndex] not in array):
             array.append(row[columnIndex])
-    fileObj.close()
     return array
 
-def write_header(nameOfFile,dates):
+def write_header(nameOfFile,dates,type):
     """ Create and return file object in which written column-heads """
-    fileObj = open(nameOfFile+".csv","w")
+    fileType = ".csv" if type == 0 else ".txt"
+    fileObj = open(nameOfFile+fileType,"w")
     fileObj.write("Name/Date,")
     for date in dates:
         year = findall(r"\d{4}",date)
@@ -58,7 +58,7 @@ def write_row(name, dates, IFL, OFO):
                     OFO.write(zero)
                     break
 
-def read_and_write(inputCSV):
+def read_and_write(inputCSV,outputName,outputType):
     """ Main function of module """
     inputFileObject = open(inputCSV)
     IFL = list(reader(inputFileObject))
@@ -67,7 +67,7 @@ def read_and_write(inputCSV):
     names = read_rows(IFL, 0)
     names.sort()
     dates = read_rows(IFL, 1)
-    outputCSV = write_header("resultWith",dates)
+    outputCSV = write_header(outputName,dates,outputType)
 
     for name in names:
         write_row(name, dates, IFL, outputCSV)
@@ -76,4 +76,6 @@ def read_and_write(inputCSV):
 
 if __name__ == "__main__":
     csvName = "acme_worksheet.csv"
-    read_and_write(csvName)
+    outName = "resultWith"
+    outType = 0
+    read_and_write(csvName,outName,outType)
